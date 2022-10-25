@@ -1,2 +1,0 @@
-export TYPO3_CONTEXT=Development
-

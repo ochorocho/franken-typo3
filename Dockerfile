@@ -69,6 +69,8 @@ RUN cd caddy/frankenphp && \
 WORKDIR /app
 
 RUN mkdir -p /app/public
-RUN echo '<?php echo "The Walking Bread! "; phpinfo();' > /app/public/index.php
+RUN echo '<?php echo "<h1 style=\"text-align: center\">🍞 The Walking Bread! 🍞</h1>"; phpinfo();' > /app/public/index.php
+RUN mkdir -p /conf.d/
+COPY config/php.ini /conf.d/php.ini
 
 CMD ["frankenphp", "run", "--config", "/etc/Caddyfile" ]
