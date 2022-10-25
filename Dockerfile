@@ -52,7 +52,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # Allow ImageMagick 6 to read/write pdf files
 COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 
-# Get this wannabe zombie walking
+# Build and install frankenphp
 RUN git clone --recursive https://github.com/dunglas/frankenphp.git /go/src/app/
 
 WORKDIR /go/src/app/
@@ -69,7 +69,6 @@ RUN cd caddy/frankenphp && \
 WORKDIR /app
 
 RUN mkdir -p /app/public
-RUN echo '<?php echo "The Walking Bread!"; phpinfo();' > /app/public/index.php
+RUN echo '<?php echo "The Walking Bread! "; phpinfo();' > /app/public/index.php
 
-COPY config/docker-php-entrypoint.sh /usr/local/bin/docker-php-entrypoint
 CMD ["frankenphp", "run", "--config", "/etc/Caddyfile" ]
