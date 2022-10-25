@@ -1,9 +1,9 @@
-FROM dunglas/frankenphp:latest
+FROM php:8.2.0RC4-zts-bullseye
 
 USER root
 
 RUN apt update && \
-    apt install -y gnupg ca-certificates lsb-release bash-completion cron imagemagick golang-go ghostscript libfreetype6-dev \
+    apt install -y git gnupg ca-certificates lsb-release bash-completion cron imagemagick golang-go ghostscript libfreetype6-dev \
                     libzip-dev libssl-dev libonig-dev libxml2-dev libpng-dev libjpeg-dev libwebp-dev libavif-dev
 
 # Build and install PHP
