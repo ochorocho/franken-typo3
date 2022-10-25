@@ -11,8 +11,8 @@ RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/
 
 WORKDIR /php-src/
 
-RUN ./buildconf
-RUN ./configure \
+RUN ./buildconf && \
+    ./configure \
         --enable-embed \
         --enable-zts \
         --disable-zend-signals \
@@ -44,9 +44,9 @@ RUN ./configure \
     rm -Rf php-src/ && \
     echo "Creating src archive for building extensions\n" && \
     tar -c -f /usr/src/php.tar.xz -J /php-src/ && \
-    ldconfig && \
-    php --version
+    ldconfig
 
+# Add composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 # Allow ImageMagick 6 to read/write pdf files
@@ -66,11 +66,14 @@ RUN cd caddy/frankenphp && \
     cp frankenphp /usr/local/bin && \
     cp /go/src/app/caddy/frankenphp/Caddyfile /etc/Caddyfile
 
-WORKDIR /app
 
-RUN mkdir -p /app/public
-RUN echo '<?php echo "<h1 style=\"text-align: center\">🍞 The Walking Bread! 🍞</h1>"; phpinfo();' > /app/public/index.php
+RUN rm -Rf /app && \
+    composer create-project typo3/cms-base-distribution /app && \
+    touch /app/public/FIRST_INSTALL
+
+# Configure PHP
 RUN mkdir -p /conf.d/
 COPY config/php.ini /conf.d/php.ini
 
+WORKDIR /app
 CMD ["frankenphp", "run", "--config", "/etc/Caddyfile" ]

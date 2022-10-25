@@ -1,0 +1,65 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 4 * * *"
+jobs:
+  docker:
+    name: Docker Image Builder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Docker Tag Name
+        id: get-tag
+        run: |
+          readonly local tag=$([[ "${{ github.ref_name }}" = "main" ]] && echo "latest" || echo "${{ github.ref_name }}" | tr "/" "-")
+          echo ::set-output name=tag::$tag
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: docker-practice/actions-setup-docker@master
+      - run: |
+          set -x
+          docker version
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ochorocho/franken-typo3
+          tags: |
+            type=raw,value=${{ steps.get-tag.outputs.tag }},enable=true
+      -
+        name: Build and export to Docker
+        uses: docker/build-push-action@v3
+        with:
+          context: ./
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+      -
+        name: Test for expected binaries
+        run: |
+          echo ${{ steps.get-tag.outputs.tag }}
+          docker run --rm -v ${GITHUB_WORKSPACE}/.test.sh:/tmp/test.sh --entrypoint "bash" ochorocho/franken-typo3:${{ steps.get-tag.outputs.tag }} /tmp/test.sh
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: ./
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
