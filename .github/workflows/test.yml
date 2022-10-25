@@ -54,7 +54,7 @@ jobs:
         name: Test for expected binaries
         run: |
           echo ${{ steps.get-tag.outputs.tag }}
-          docker run --rm -v ${GITHUB_WORKSPACE}/.test.sh:/tmp/test.sh --entrypoint "bash" ochorocho/franken-typo3:${{ steps.get-tag.outputs.tag }} /tmp/test.sh
+          docker run --rm -v ${GITHUB_WORKSPACE}/test.sh:/tmp/test.sh --entrypoint "bash" ochorocho/franken-typo3:${{ steps.get-tag.outputs.tag }} /tmp/test.sh
       -
         name: Build and push
         uses: docker/build-push-action@v3
