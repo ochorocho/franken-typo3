@@ -9,7 +9,10 @@ USER root
 #        /root/.cache/* \
 
 RUN apk add --no-cache \
-		build-base alpine-sdk go git \
+		build-base  \
+        alpine-sdk  \
+        go \
+        git \
         libssl3 \
         bison \
         git \
@@ -22,7 +25,8 @@ RUN apk add --no-cache \
 		xz \
 		openssl \
 		autoconf \
-		dpkg-dev dpkg \
+		dpkg-dev \
+        dpkg \
 		file \
 		g++ \
 		gcc \
@@ -30,6 +34,8 @@ RUN apk add --no-cache \
 		make \
 		pkgconf \
 		re2c \
+        libpq \
+        libpq-dev \
 		coreutils \
 		linux-headers \
         zlib-dev \
@@ -63,10 +69,11 @@ RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/
         --enable-zts \
         --disable-zend-signals \
     	--enable-mysqlnd \
+        --with-pgsql \
+        --with-mysqli \
     	--enable-option-checking=fatal \
     	--with-mhash \
     	--with-pic \
-        --enable-ftp \
     	--enable-mbstring \
         --enable-intl \
     	--with-password-argon2 \
@@ -82,7 +89,13 @@ RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/
         --with-zip \
         --with-zlib \
         --with-freetype \
-        --enable-gd --with-webp --with-jpeg --with-webp --with-avif \
+        --enable-gd  \
+        --with-webp \
+        --with-jpeg \
+        --with-webp \
+        --with-avif \
+        --disable-cgi \
+        --enable-opcache \
         --with-config-file-path="$PHP_INI_DIR" \
         --with-config-file-scan-dir="$PHP_INI_DIR/conf.d" && \
     make -j$(nproc) && \
@@ -131,14 +144,38 @@ COPY config/php.ini /conf.d/php.ini
 # Cleanup packages
 RUN apk del  \
         go \
-        make g++ \
+        make \
+        g++ \
         libgcc  \
         gcc \
         binutils \
         autoconf \
         perl \
         build-base  \
-        alpine-sdk
+        alpine-sdk \
+        bison \
+        freetype-dev \
+        gcc \
+        ncurses-dev \
+        libgcc \
+        dpkg \
+        dpkg-dev \
+        coreutils \
+        linux-headers \
+        ncurses-libs  \
+        ncurses-dev \
+        nghttp2-libs  \
+        musl-utils \
+        libc-utils \
+        musl-dev \
+        libc-dev \
+        openssl-dev \
+        libxml2-dev \
+        libsodium-dev \
+        gnu-libiconv-dev \
+        curl-dev \
+        zlib-dev \
+        git
 
 WORKDIR /app
 CMD ["frankenphp", "run", "--config", "/etc/Caddyfile" ]
