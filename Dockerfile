@@ -1,31 +1,63 @@
-FROM php:8.2.0RC4-zts-bullseye
+FROM alpine:3.16
 
 USER root
 
-#RUN apt update && \
-#    apt install -y sqlite3 bison git gnupg ca-certificates lsb-release bash-completion cron imagemagick golang-go ghostscript libfreetype6-dev \
-#                    libzip-dev libssl-dev libonig-dev libxml2-dev libpng-dev libjpeg-dev libwebp-dev libavif-dev
+#    rm -rf /var/cache/apk/* \
+#        /go/src/app \
+#        /php-src \
+#        /root/go \
+#        /root/.cache/* \
 
+RUN apk add --no-cache \
+		build-base alpine-sdk go git \
+        libssl3 \
+        bison \
+        git \
+        imagemagick \
+        ghostscript \
+        freetype-dev \
+		ca-certificates \
+		curl \
+		tar \
+		xz \
+		openssl \
+		autoconf \
+		dpkg-dev dpkg \
+		file \
+		g++ \
+		gcc \
+		libc-dev \
+		make \
+		pkgconf \
+		re2c \
+		coreutils \
+		linux-headers \
+        zlib-dev \
+        argon2-dev \
+		curl-dev \
+		gnu-libiconv-dev \
+		libsodium-dev \
+		libxml2-dev \
+		oniguruma-dev \
+		openssl-dev \
+		readline-dev \
+		sqlite-dev \
+        libzip-dev  \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        libwebp-dev \
+        libavif-dev \
+        icu-dev && \
+    rm -rf /var/cache/apk/*
 
-RUN echo "deb http://deb.debian.org/debian bullseye-backports main" > /etc/apt/sources.list.d/backports.list && \
-    apt-get update && \
-    apt-get -y --no-install-recommends install \
-    autoconf dpkg-dev file g++ gcc libc-dev make pkg-config re2c libargon2-dev libcurl4-openssl-dev libonig-dev \
-    libreadline-dev libsodium-dev libsqlite3-dev libssl-dev libxml2-dev zlib1g-dev bison git imagemagick ghostscript libfreetype6-dev \
-    libzip-dev libssl-dev libonig-dev libxml2-dev libpng-dev libjpeg-dev libwebp-dev libavif-dev
-
-COPY --from=golang:bullseye /usr/local/go/bin/go /usr/local/bin/go
-COPY --from=golang:bullseye /usr/local/go /usr/local/go
-
-# Add composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+# ensure www-data user exists
+#RUN set -eux; \
+#	adduser -u 82 -D -S -G www-data www-data
 
 # Build and install PHP
-RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/php-src.git /php-src
-
-WORKDIR /php-src/
-
-RUN ./buildconf && \
+RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/php-src.git /php-src && \
+    cd /php-src/ && \
+    ./buildconf && \
     ./configure \
         --enable-embed \
         --enable-zts \
@@ -57,8 +89,12 @@ RUN ./buildconf && \
     make install && \
     rm -Rf php-src/ && \
     echo "Creating src archive for building extensions\n" && \
-    tar -c -f /usr/src/php.tar.xz -J /php-src/ && \
-    ldconfig
+    tar -c -f /usr/src/php.tar.xz -J /php-src/ \
+    php --version && \
+    rm -Rf /php-src/
+
+# Add composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 # Allow ImageMagick 6 to read/write pdf files
 COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
@@ -66,28 +102,43 @@ COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 # Build and install frankenphp
 RUN git clone --recursive https://github.com/dunglas/frankenphp.git /go/src/app/
 
-WORKDIR /go/src/app/
+# WORKDIR /go/src/app/
 
-RUN go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get
-RUN cd caddy && go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get
+RUN cd /go/src/app/ && go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get && cd caddy && go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get
 
 # todo: automate this?
 # see https://github.com/docker-library/php/blob/master/8.2-rc/bullseye/zts/Dockerfile#L57-L59 for php values
 ENV CGO_LDFLAGS="-lssl -lcrypto -lreadline -largon2 -lcurl -lonig -lz $PHP_LDFLAGS" CGO_CFLAGS=$PHP_CFLAGS CGO_CPPFLAGS=$PHP_CPPFLAGS
 
-RUN cd caddy/frankenphp && \
+RUN cd /go/src/app/caddy/frankenphp && \
     go build && \
     cp frankenphp /usr/local/bin && \
-    cp /go/src/app/caddy/frankenphp/Caddyfile /etc/Caddyfile
+    cp /go/src/app/caddy/frankenphp/Caddyfile /etc/Caddyfile && \
+    rm -rf /go/src/app \
+      /root/.cache/* \
+      /root/go
 
-
+# Install TYPO3, so it can be used without a configured volume
 RUN rm -Rf /app && \
     composer create-project typo3/cms-base-distribution /app && \
-    touch /app/public/FIRST_INSTALL
+    touch /app/public/FIRST_INSTALL && \
+    rm -Rf /root/.composer/*
 
 # Configure PHP
 RUN mkdir -p /conf.d/
 COPY config/php.ini /conf.d/php.ini
+
+# Cleanup packages
+RUN apk del  \
+        go \
+        make g++ \
+        libgcc  \
+        gcc \
+        binutils \
+        autoconf \
+        perl \
+        build-base  \
+        alpine-sdk
 
 WORKDIR /app
 CMD ["frankenphp", "run", "--config", "/etc/Caddyfile" ]

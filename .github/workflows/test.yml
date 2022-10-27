@@ -51,17 +51,19 @@ jobs:
         with:
           context: ./
           load: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
       -
         name: Test for expected binaries
         run: |
           echo ${{ steps.get-tag.outputs.tag }}
-          docker run --rm -v ${GITHUB_WORKSPACE}/test.sh:/tmp/test.sh --entrypoint "bash" ochorocho/franken-typo3:${{ steps.get-tag.outputs.tag }} /tmp/test.sh
+          docker run --rm -v ${GITHUB_WORKSPACE}/test.sh:/tmp/test.sh --entrypoint "ash" ochorocho/franken-typo3:${{ steps.get-tag.outputs.tag }} /tmp/test.sh
       -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: ./
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

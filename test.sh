@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 composer --version || exit 1
 php -v | grep "^PHP" || (echo "PHP missing" && exit 1)
