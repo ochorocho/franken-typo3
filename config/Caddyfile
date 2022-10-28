@@ -20,17 +20,15 @@ route {
 	}
 	redir @canonicalPath {path}/ 308
 
-	# If the requested file does not exist, try index files
-	@indexFiles file {
-	    # try_files {path} {path}/index.php /typo3/index.php
-		try_files {path} {path}/index.php index.php
-		split_path .php
-	}
+    @indexFiles file {
+        try_files {path} {path}/index.php
+        split_path .php
+    }
 
-	# typo3 backend
-	# try_files {path} {path}/index.php /typo3/index.php
+    rewrite @indexFiles {http.matchers.file.relative}
 
-	# rewrite @indexFiles {http.matchers.file.relative}
+    # TYPO3 Backend - if not set, backend routing will not work!
+    rewrite /typo3/* /typo3/index.php
 
 	# FrankenPHP!
 	@phpFiles path *.php
