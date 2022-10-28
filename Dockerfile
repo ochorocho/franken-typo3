@@ -110,10 +110,6 @@ RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/
 # Add composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
-# Allow ImageMagick 6 to read/write pdf files
-COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
-
-
 # Build and install frankenphp
 # todo: automate this?
 # see https://github.com/docker-library/php/blob/master/8.2-rc/bullseye/zts/Dockerfile#L57-L59 for php values
@@ -124,7 +120,6 @@ RUN git clone --recursive https://github.com/dunglas/frankenphp.git /go/src/app/
     cd /go/src/app/caddy/frankenphp && \
     go build && \
     cp frankenphp /usr/local/bin && \
-    cp /go/src/app/caddy/frankenphp/Caddyfile /etc/Caddyfile && \
     rm -rf /go/src/app \
       /root/.cache/* \
       /root/go
@@ -137,6 +132,12 @@ RUN rm -Rf /app && \
 
 # Configure PHP
 COPY config/php.ini /conf.d/php.ini
+
+# Allow ImageMagick 6 to read/write pdf files
+COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
+
+# Caddy config for TYPO3
+# COPY config/Caddyfile /etc/Caddyfile
 
 # Cleanup packages
 RUN apk del  \

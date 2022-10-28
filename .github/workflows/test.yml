@@ -17,7 +17,7 @@ jobs:
           echo ::set-output name=tag::$tag
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - uses: docker-practice/actions-setup-docker@master
       - run: |
