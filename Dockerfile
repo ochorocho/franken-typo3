@@ -104,7 +104,8 @@ RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/
     echo "Creating src archive for building extensions\n" && \
     tar -c -f /usr/src/php.tar.xz -J /php-src/ \
     php --version && \
-    rm -Rf /php-src/
+    rm -Rf /php-src/ && \
+    mkdir -p /conf.d/
 
 # Add composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
@@ -112,18 +113,15 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # Allow ImageMagick 6 to read/write pdf files
 COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 
+
 # Build and install frankenphp
-RUN git clone --recursive https://github.com/dunglas/frankenphp.git /go/src/app/
-
-# WORKDIR /go/src/app/
-
-RUN cd /go/src/app/ && go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get && cd caddy && go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get
-
 # todo: automate this?
 # see https://github.com/docker-library/php/blob/master/8.2-rc/bullseye/zts/Dockerfile#L57-L59 for php values
 ENV CGO_LDFLAGS="-lssl -lcrypto -lreadline -largon2 -lcurl -lonig -lz $PHP_LDFLAGS" CGO_CFLAGS=$PHP_CFLAGS CGO_CPPFLAGS=$PHP_CPPFLAGS
 
-RUN cd /go/src/app/caddy/frankenphp && \
+RUN git clone --recursive https://github.com/dunglas/frankenphp.git /go/src/app/ && \
+    cd /go/src/app/ && go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get && cd caddy && go mod graph | awk '{if ($1 !~ "@") print $2}' | xargs go get && \
+    cd /go/src/app/caddy/frankenphp && \
     go build && \
     cp frankenphp /usr/local/bin && \
     cp /go/src/app/caddy/frankenphp/Caddyfile /etc/Caddyfile && \
@@ -138,7 +136,6 @@ RUN rm -Rf /app && \
     rm -Rf /root/.composer/*
 
 # Configure PHP
-RUN mkdir -p /conf.d/
 COPY config/php.ini /conf.d/php.ini
 
 # Cleanup packages
