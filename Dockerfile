@@ -2,12 +2,6 @@ FROM alpine:3.16
 
 USER root
 
-#    rm -rf /var/cache/apk/* \
-#        /go/src/app \
-#        /php-src \
-#        /root/go \
-#        /root/.cache/* \
-
 RUN apk add --no-cache \
 		build-base  \
         alpine-sdk  \
@@ -55,10 +49,6 @@ RUN apk add --no-cache \
         libavif-dev \
         icu-dev && \
     rm -rf /var/cache/apk/*
-
-# ensure www-data user exists
-#RUN set -eux; \
-#	adduser -u 82 -D -S -G www-data www-data
 
 # Build and install PHP
 RUN git clone --depth=1 --single-branch --branch=PHP-8.2 https://github.com/php/php-src.git /php-src && \
