@@ -10,6 +10,11 @@
 
 {$SERVER_NAME:localhost}
 
+handle_errors {
+    # @todo: Somehow redirect to TYPO3 to let it do its thing!
+	respond "{err.status_code} {err.status_text}"
+}
+
 log
 route {
 	root * public/
@@ -28,6 +33,7 @@ route {
     rewrite @indexFiles {http.matchers.file.relative}
 
     # TYPO3 Backend - if not set, backend routing will not work!
+    # @todo: Do not redirect /typo3/install.php
     rewrite /typo3/* /typo3/index.php
 
 	# FrankenPHP!

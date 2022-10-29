@@ -137,7 +137,7 @@ COPY config/php.ini /conf.d/php.ini
 COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 
 # Caddy config for TYPO3
-# COPY config/Caddyfile /etc/Caddyfile
+COPY config/Caddyfile /etc/Caddyfile
 
 # Cleanup packages
 RUN apk del  \
