@@ -11,13 +11,14 @@
 {$SERVER_NAME:localhost}
 
 handle_errors {
-    # @todo: Somehow redirect to TYPO3 to let it do its thing!
+    # @todo: Better handling for errors. Ensure TYPO3 error pages are used.
 	respond "{err.status_code} {err.status_text}"
 }
 
 log
 route {
 	root * public/
+
 	# Add trailing slash for directory requests
 	@canonicalPath {
 		file {path}/index.php
@@ -25,16 +26,26 @@ route {
 	}
 	redir @canonicalPath {path}/ 308
 
-    @indexFiles file {
-        try_files {path} {path}/index.php
-        split_path .php
+    # TYPO3 Frontend
+    @frontend {
+        not path /typo3/*
+        file {
+            try_files {path} {path}/index.php /index.php
+            split_path .php
+        }
     }
-
-    rewrite @indexFiles {http.matchers.file.relative}
+    rewrite @frontend {http.matchers.file.relative}
 
     # TYPO3 Backend - if not set, backend routing will not work!
-    # @todo: Do not redirect /typo3/install.php
-    rewrite /typo3/* /typo3/index.php
+    @backend {
+        path /typo3/*
+        not path /typo3/install.php
+        file {
+            try_files {path} {path}/index.php /typo3/index.php
+            split_path .php
+        }
+    }
+    rewrite @backend {http.matchers.file.relative}
 
 	# FrankenPHP!
 	@phpFiles path *.php
