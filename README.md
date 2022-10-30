@@ -46,7 +46,7 @@ docker run \
 
 ## Use custom caddy file
 
-Download the [Caddifile](config/Caddyfile) and mount it to `/etc/Caddyfile` 
+Download the [Caddyfile](config/Caddyfile) and mount it to `/etc/Caddyfile` 
 and change it as needed. Requires a container restart for changes to take effect.
 
 ```

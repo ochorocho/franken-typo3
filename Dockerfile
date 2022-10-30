@@ -47,7 +47,8 @@ RUN apk add --no-cache \
         libjpeg-turbo-dev \
         libwebp-dev \
         libavif-dev \
-        icu-dev && \
+        icu-dev  \
+        nss-tools && \
     rm -rf /var/cache/apk/*
 
 # Build and install PHP
