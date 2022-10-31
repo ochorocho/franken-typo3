@@ -48,7 +48,8 @@ RUN apk add --no-cache \
         libwebp-dev \
         libavif-dev \
         icu-dev  \
-        nss-tools && \
+        nss-tools \
+        musl-locales && \
     rm -rf /var/cache/apk/*
 
 # Build and install PHP
