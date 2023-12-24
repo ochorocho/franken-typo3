@@ -132,40 +132,40 @@ COPY config/imagemagick-policy.xml /etc/ImageMagick-6/policy.xml
 COPY config/Caddyfile /etc/Caddyfile
 
 # Cleanup packages
-RUN apk del  \
-        go \
-        make \
-        g++ \
-        libgcc  \
-        gcc \
-        binutils \
-        autoconf \
-        perl \
-        build-base  \
-        alpine-sdk \
-        bison \
-        freetype-dev \
-        gcc \
-        ncurses-dev \
-        libgcc \
-        dpkg \
-        dpkg-dev \
-        coreutils \
-        linux-headers \
-        ncurses-libs  \
-        ncurses-dev \
-        nghttp2-libs  \
-        musl-utils \
-        libc-utils \
-        musl-dev \
-        libc-dev \
-        openssl-dev \
-        libxml2-dev \
-        libsodium-dev \
-        gnu-libiconv-dev \
-        curl-dev \
-        zlib-dev \
-        git
+#RUN apk del  \
+#        go \
+#        make \
+#        g++ \
+#        libgcc  \
+#        gcc \
+#        binutils \
+#        autoconf \
+#        perl \
+#        build-base  \
+#        alpine-sdk \
+#        bison \
+#        freetype-dev \
+#        gcc \
+#        ncurses-dev \
+#        libgcc \
+#        dpkg \
+#        dpkg-dev \
+#        coreutils \
+#        linux-headers \
+#        ncurses-libs  \
+#        ncurses-dev \
+#        nghttp2-libs  \
+#        musl-utils \
+#        libc-utils \
+#        musl-dev \
+#        libc-dev \
+#        openssl-dev \
+#        libxml2-dev \
+#        libsodium-dev \
+#        gnu-libiconv-dev \
+#        curl-dev \
+#        zlib-dev \
+#        git
 
 WORKDIR /app
 CMD ["frankenphp", "run", "--config", "/etc/Caddyfile" ]
