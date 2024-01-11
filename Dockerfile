@@ -22,7 +22,6 @@ RUN apk add --no-cache \
     PHP_VERSION=8.2 \
     PHP_EXTENSIONS=password-argon2,apcu,bcmath,bz2,ctype,curl,dba,dom,exif,fileinfo,filter,zlib,gd,iconv,igbinary,intl,openssl,mbstring,mbregex,mysqlnd,mysqli,opcache,pcntl,pdo,pdo_mysql,pgsql,pdo_pgsql,sqlite3,pdo_sqlite,phar,posix,readline,session,redis,simplexml,sockets,sysvsem,tokenizer,xml,zip \
     ./build-static.sh && \
-    ls -lah /frankenphp/dist/ && \
     # Make FrankenPHP globally available
     cp -Rp /frankenphp/dist/frankenphp-* /usr/bin/frankenphp && \
     # Cleanup
