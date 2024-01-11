@@ -20,8 +20,12 @@ jobs:
       - name: Install packages
         run: sudo apt install -y php curl git build-essential
 
-      - name: Install composer
-        run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+      - name: Install Composer
+        uses: php-actions/composer@v6
+        with:
+          php_version: "8.2"
+          version: 2
+          command: about
 
       - name: Clone FrankenPHP
         run: git clone https://github.com/dunglas/frankenphp /frankenphp
