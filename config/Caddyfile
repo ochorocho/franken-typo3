@@ -1,26 +1,40 @@
 {
-	# Debug
-    {$DEBUG}
+	{$CADDY_GLOBAL_OPTIONS}
 
 	frankenphp {
 		#worker /path/to/your/worker.php
 		{$FRANKENPHP_CONFIG}
 	}
+
+    # @todo: make it configurable
+    #	http_port 8788
+    #	https_port 8787
+
+	# https://caddyserver.com/docs/caddyfile/directives#sorting-algorithm
+	order mercure after encode
+	order vulcain after reverse_proxy
+	order php_server before file_server
+	order php before file_server
 }
 
-{$SERVER_NAME:localhost}
+{$CADDY_EXTRA_CONFIG}
 
-handle_errors {
-    # @todo: Better handling for errors. Ensure TYPO3 error pages are used.
-	respond "{err.status_code} {err.status_text}"
-}
+{$SERVER_NAME:localhost} {
+	log {
+		# Redact the authorization query parameter that can be set by Mercure
+		format filter {
+			wrap console
+			fields {
+				uri query {
+					replace authorization REDACTED
+				}
+			}
+		}
+	}
 
-log
-route {
 	root * public/
 
-	# Add trailing slash for directory requests
-	@canonicalPath {
+    @canonicalPath {
 		file {path}/index.php
 		not path */
 	}
@@ -47,11 +61,26 @@ route {
     }
     rewrite @backend {http.matchers.file.relative}
 
-	# FrankenPHP!
-	@phpFiles path *.php
-	php @phpFiles
 	encode zstd gzip
-	file_server
 
-	respond 404
+	# Uncomment the following lines to enable Mercure and Vulcain modules
+	#mercure {
+	#	# Transport to use (default to Bolt)
+	#	transport_url {$MERCURE_TRANSPORT_URL:bolt:///data/mercure.db}
+	#	# Publisher JWT key
+	#	publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
+	#	# Subscriber JWT key
+	#	subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
+	#	# Allow anonymous subscribers (double-check that it's what you want)
+	#	anonymous
+	#	# Enable the subscription API (double-check that it's what you want)
+	#	subscriptions
+	#	# Extra directives
+	#	{$MERCURE_EXTRA_DIRECTIVES}
+	#}
+	#vulcain
+
+	{$CADDY_SERVER_EXTRA_DIRECTIVES}
+
+	php_server
 }

@@ -56,3 +56,10 @@ docker run \
     -p 450:443 \
     ochorocho/franken-typo3:latest
 ```
+
+## Build locally
+
+```
+export GITHUB_TOKEN=<GITHUB-TOKEN>
+docker build --load --platform linux/arm64 --build-arg github_token=${GITHUB_TOKEN} --no-cache --progress=plain . -f Dockerfile -t ochorocho/franken-typo3:latest
+```
