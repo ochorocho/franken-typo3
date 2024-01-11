@@ -56,7 +56,7 @@ jobs:
           xcode-version: 13.4
 
       - name: Install packages
-        run: brew install libiconv bison re2c pkg-config bzip2 liblzf liblz4
+        run: brew install libiconv bison re2c pkg-config bzip2 liblzf
 
       - name: Install Composer
         uses: php-actions/composer@v6
