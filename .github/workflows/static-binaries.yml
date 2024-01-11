@@ -8,7 +8,7 @@ on:
 
 jobs:
   linux:
-    name: Build Web Extension (Chrome, Firefox, Edge)
+    name: Build Linux
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-node@v3.4.1
 
       - name: Install packages
-        run: apt install php curl git build-essential
+        run: sudo apt install -y php curl git build-essential
 
       - name: Install composer
         run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
