@@ -36,44 +36,54 @@ jobs:
           CLEAN=1 PHP_VERSION=8.2 \
           PHP_EXTENSIONS=password-argon2,apcu,bcmath,bz2,ctype,curl,dba,dom,exif,fileinfo,filter,zlib,gd,iconv,igbinary,intl,openssl,mbstring,mbregex,mysqlnd,mysqli,opcache,pcntl,pdo,pdo_mysql,pgsql,pdo_pgsql,sqlite3,pdo_sqlite,phar,posix,readline,session,redis,simplexml,sockets,sysvsem,tokenizer,xml,zip \
           ./build-static.sh
+          ls -la dist/*
 
       - uses: actions/upload-artifact@v3
         with:
-          name: binary
+          name: linux-binary
           path: frankenphp/dist/frankenphp-*
 
-#  darwin:
-#    name: Build for Safari
-#    runs-on: macos-12
-#    needs: [
-#      prepare
-#    ]
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Setup Node.js environment
-#        uses: actions/setup-node@v3.4.1
-#
-#      - name: Install packages
-#        run: yarn install
-#
-#      - name: Setup Xcode version
-#        uses: maxim-lobanov/setup-xcode@v1.4.1
-#        with:
-#          xcode-version: 13.4
-#
-#      - name: Build Safari
-#        run: |
-#          yarn build:safari
-#          node_modules/.bin/appdmg package-dmg.json TYPO3-TDK-GitPod-${{needs.prepare.outputs.ref}}.dmg
-#          ls -la
-#
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: extension-safari
-#          path: TYPO3-TDK-GitPod-*
-#
+  darwin:
+    name: Build for Safari
+    runs-on: macos-12
+    needs: [
+      prepare
+    ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Xcode version
+        uses: maxim-lobanov/setup-xcode@v1.4.1
+        with:
+          xcode-version: 13.4
+
+      - name: Install packages
+        run: brew install libiconv bison re2c pkg-config bzip2 liblzf liblz4
+
+      - name: Install Composer
+        uses: php-actions/composer@v6
+        with:
+          php_version: "8.2"
+          version: 2
+          command: about
+
+      - name: Clone FrankenPHP
+        run: git clone https://github.com/dunglas/frankenphp frankenphp
+
+      - name: Build FrankenPHP
+        run: |
+          cd frankenphp
+          CLEAN=1 PHP_VERSION=8.2 \
+          PHP_EXTENSIONS=password-argon2,apcu,bcmath,bz2,ctype,curl,dba,dom,exif,fileinfo,filter,zlib,gd,iconv,igbinary,intl,openssl,mbstring,mbregex,mysqlnd,mysqli,opcache,pcntl,pdo,pdo_mysql,pgsql,pdo_pgsql,sqlite3,pdo_sqlite,phar,posix,readline,session,redis,simplexml,sockets,sysvsem,tokenizer,xml,zip \
+          ./build-static.sh
+          ls -la dist/*
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: macos-binary
+          path: frankenphp/dist/frankenphp-*
+
 #  upload:
 #    name: Upload release files
 #    runs-on: ubuntu-20.04
