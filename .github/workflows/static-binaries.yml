@@ -28,6 +28,8 @@ jobs:
         run: git clone https://github.com/dunglas/frankenphp frankenphp
 
       - name: Build FrankenPHP
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           cd frankenphp
           CLEAN=1 PHP_VERSION=8.2 \
@@ -57,6 +59,8 @@ jobs:
         run: git clone https://github.com/dunglas/frankenphp frankenphp
 
       - name: Build FrankenPHP
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           cd frankenphp
           CLEAN=1 PHP_VERSION=8.2 \
