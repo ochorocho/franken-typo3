@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install packages
-        run: brew install libiconv bison re2c pkg-config bzip2 liblzf php@8.2 composer
+        run: brew install libiconv bison re2c pkg-config bzip2 liblzf php@8.2 composer go
 
       - name: Clone FrankenPHP
         run: git clone https://github.com/dunglas/frankenphp frankenphp
