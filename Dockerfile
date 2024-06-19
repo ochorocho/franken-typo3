@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3
 
 ARG github_token
 ARG php_version
